@@ -1,0 +1,49 @@
+Tendrl Notes -*- mode: org -*-
+
+
+
+* Glossary
+  - Tendrl Core ::
+	   Standalone sel-sufficient stack that implements
+	   core management, provision, and monitoring
+	   functionality supported by Tendrl.
+	   Exposes over API
+  - API ::
+  HTTP interface exposed by the app
+  - Node Agent ::
+  Component that enables Tendlr Core to manage a node	  
+  - State ::
+  Representation of the system in the Central Store.
+  Includes all the information necessary for the APP to manage
+  and monitor the system. State is compised of Objects. State
+  is represented via a hierarchy of keys and values
+  organised with directories
+  - State Definition ::
+  A YAML file that describes the various parts of the state
+  - State Bridge ::
+  Specifically responsible for gathering and maintaining the
+  Storage System State in the Central Store.
+  - Object ::
+  Entity from the state representation
+  - Object State ::
+  Every object can be in a specific state at any given point in time.
+  - Attribute :: 
+  Properties of the object made known to the App. Attributes 
+  have a location within the state representation and a
+  dataype 
+  - Action ::
+  A method that can be invoked against a specific object.
+  - Parameter ::
+  Associatied with action, have defined datatype and the associated
+  validation
+  - Operation ::
+  An action that is : 
+   - either invoked against more thatn one object
+   - or comprises of more than one action.
+  - Step ::
+  A step in an operation is an atomic grouping of Actions.
+  Steps can have dependencies 
+	     
+	     
+	   
+ 	    
