@@ -1,6 +1,5 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
 require 'yaml'
 
 # Global Variables
@@ -27,8 +26,22 @@ VMDISK = '256m'.freeze # size of brick disks in MB
 zombie_count = -1
 
 # load the YAML file then munge
-tendrl_conf = YAML.load_file 'zombies.conf.yml'
-zombie_count = tendrl_conf['zombie_count'].to_i
+zombie_conf = YAML.load_file 'zombies.conf.yml'
+zombie_count = zombie_conf['zombie_count'].to_i
+server_ip = zombie_conf['gluster_ip']
+short_name = zombie_conf['gluster_shortname']
+volume_name = zombie_conf['gluster_volume']
+
+
+$script = <<-SCRIPT
+echo TEST
+echo #{server_ip}  #{short_name} >> /etc/hosts
+mkdir /data
+sudo yum -y install glusterfs-fuse
+sudo mount -t glusterfs #{short_name}:/#{volume_name} /data
+cd /data
+for (( i=1;i<=2000;i++)) do dd if=/dev/zero of=testfile$i.txt bs=1K count=10; done
+SCRIPT
 
 #################
 
@@ -61,10 +74,6 @@ def libvirt_attach_disks(disks, provider)
   end
 end
 
-
-
-
-
 Vagrant.configure(2) do |config|
   config.vm.box = 'centos/7'
   
@@ -88,8 +97,13 @@ Vagrant.configure(2) do |config|
   (1..zombie_count).each do |node_index|
     config.vm.define "zombie-#{node_index}" do |machine|
       # Provider-independent options
-      machine.vm.hostname = "tendrl-node-#{node_index}"
+      machine.vm.hostname = "zombie-#{node_index}"
       machine.vm.synced_folder '.', '/vagrant', disabled: true
+
+      #
+      ## Provisioner shell
+      #
+      machine.vm.provision "shell", inline: $script
 
       machine.vm.provider 'libvirt' do |libvirt, override|
         # Set VM resources
@@ -104,9 +118,13 @@ Vagrant.configure(2) do |config|
         libvirt.username = 'root'
 
         # attach brick disks
-        libvirt_attach_disks(disk_count, libvirt)
+        #libvirt_attach_disks(disk_count, libvirt)
       end
 
+# mkdir /data
+# sudo mount -t glusterfs tendrl-node-1:/glustervol /data
+
+=begin 
 
       # https://www.vagrantup.com/docs/provisioning/ansible_common.html
       if node_index == storage_node_count
@@ -174,6 +192,7 @@ Vagrant.configure(2) do |config|
           end
         end
       end
+=end
     end
   end
 end
