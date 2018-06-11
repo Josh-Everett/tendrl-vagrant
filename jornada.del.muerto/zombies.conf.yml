@@ -1,0 +1,4 @@
+zombie_count: 2
+gluster_ip : 172.28.128.149
+gluster_shortname : tendrl-node-1
+gluster_volume : glustervol
